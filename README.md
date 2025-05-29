@@ -1,35 +1,27 @@
 # CodeAtlas
 
-*A lightweight CLI that "maps" a directory tree—paths, metadata, and (optionally) file contents—then emits a single, prompt‑ready text file for use with LLMs.*
+*A lightweight CLI that scans a directory tree and emits a plain text summary.*
 
 ---
 
 ## ✨ Features
 
 * **Recursive scan** – depth‑first walk from any root directory.
-* **Content extraction** – inlines text‑based files with automatic encoding detection (defaults to UTF‑8).
-* **Metadata tags** – size, modified time, and custom key–value pairs per file.
-* **Ignore / include patterns** – respects `.gitignore` syntax and supports `--exclude/--include` globs.
-* **Multiple output modes**
-
-  * Plain text (default)
-  * Markdown (`--md`) with fenced code blocks
-  * JSON (`--json`) for downstream tooling
-* **Chunking** – splits oversized files or trees into token‑friendly pieces (`--- CHUNK n/m ---`).
-* **Colorized preview** – ANSI‑styled tree for humans (`--color`).
+* **Content extraction** – inlines text‑based files with basic encoding detection.
+* **Metadata tags** – records file size and modified time.
+* **Include/Exclude patterns** – simple glob matching via `--include` and `--exclude`.
+* **Plain text output** – results are printed line by line.
 
 ---
 
 ## Quick Start
 
 ```bash
-# Install from PyPI
+# Install from PyPI (or clone the repo and install locally)
 pip install codeatlas
 
-# Snapshot a project in Markdown, truncating each file to 20 kB
-codeatlas --root ~/my/project --md --max-bytes 20000 > snapshot.md
-
-# Paste or upload `snapshot.md` to ChatGPT / Claude / your internal model
+# Scan a project and capture the first 20 kB of each text file
+codeatlas --root ~/my/project --content --max-bytes 20000 > snapshot.txt
 ```
 
 ---
@@ -38,18 +30,21 @@ codeatlas --root ~/my/project --md --max-bytes 20000 > snapshot.md
 
 ```bash
 $ codeatlas --help
-Usage: codeatlas [OPTIONS]
+```
 
-Options:
-  --root PATH             Root directory to scan (default: .)
-  --md / --json           Output mode (plain text is default)
-  --content               Include file contents (text files only)
-  --max-bytes INTEGER     Truncate each file after N bytes
-  --exclude PATTERN...    Glob(s) to skip (repeatable)
-  --include PATTERN...    Limit scan to matching files
-  --color                 ANSI colors for on-screen preview
-  --save FILE             Write to FILE instead of stdout
-  -h, --help              Show this message and exit
+Outputs:
+
+```
+usage: codeatlas [-h] [--root ROOT] [--include INCLUDE] [--exclude EXCLUDE]
+                 [--content] [--max-bytes MAX_BYTES]
+
+options:
+  -h, --help            show this help message and exit
+  --root ROOT
+  --include INCLUDE
+  --exclude EXCLUDE
+  --content
+  --max-bytes MAX_BYTES
 ```
 
 ---
@@ -68,7 +63,7 @@ pip install codeatlas
 git clone https://github.com/bttb0209/codeatlas.git
 cd codeatlas
 python -m venv .venv && source .venv/bin/activate
-pip install -r requirements-dev.txt
+pip install -e .
 ```
 
 ---
@@ -78,12 +73,10 @@ pip install -r requirements-dev.txt
 | Topic          | Standard                                                |
 | -------------- | ------------------------------------------------------- |
 | **Language**   | Python ≥ 3.9                                            |
-| **Linting**    | [ruff](https://github.com/astral-sh/ruff) (`make lint`) |
-| **Formatting** | [Black](https://github.com/psf/black) (`make format`)   |
+| **Linting**    | [ruff](https://github.com/astral-sh/ruff)               |
+| **Formatting** | [Black](https://github.com/psf/black)                   |
 | **Docstrings** | NumPy style                                             |
-| **Tests**      | `pytest` + `pytest-cov` (`make test`)                   |
-
-> **Tip:** pre‑commit hooks (`pre‑commit install`) will run ruff, Black, and tests automatically on each commit.
+| **Tests**      | `pytest`                                                |
 
 ---
 
@@ -91,6 +84,5 @@ pip install -r requirements-dev.txt
 
 1. Fork the repo and create a feature branch.
 2. Follow the **Development Guidelines** above.
-3. Ensure `make lint format test` passes.
-4. Submit a pull request—please describe **why** and **how** your change helps.
-
+3. Ensure the test suite passes.
+4. Submit a pull request describing **why** and **how** your change helps.
