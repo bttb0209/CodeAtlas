@@ -31,6 +31,7 @@ def _save_state(data: dict[str, list[str]]) -> None:
 
 from textual.app import App, ComposeResult
 from textual.containers import Horizontal
+from textual import events
 from textual.widgets import (
     DirectoryTree,
     Footer,
@@ -55,6 +56,16 @@ class PathItem(ListItem):
     def __init__(self, path: Path) -> None:
         super().__init__(Label(path.as_posix()))
         self.path = path
+
+    def on_click(
+        self, event: events.Click
+    ) -> None:  # pragma: no cover - UI interaction
+        """Remove the item on double click."""
+        if event.chain == 2:
+            app = self.app
+            if hasattr(app, "remove_path_item"):
+                app.remove_path_item(self)
+            event.stop()
 
 
 class AtlasTUI(App):
@@ -109,6 +120,14 @@ class AtlasTUI(App):
         if self.focused is self.dir_tree:
             self.dir_tree.action_toggle_node()
 
+    def on_directory_tree_click(
+        self, event: events.Click
+    ) -> None:  # pragma: no cover - UI interaction
+        """Add the selected path on double click."""
+        if event.chain == 2:
+            self.action_add()
+            event.stop()
+
     def compose(self) -> ComposeResult:
         yield Header()
         with Horizontal():
@@ -133,10 +152,19 @@ class AtlasTUI(App):
 
     def action_remove(self) -> None:
         if self.list_view.index is not None:
-            idx = self.list_view.index
-            self.list_view.remove_items([idx])
-            del self.targets[idx]
-            self._save_current_state()
+            self._remove_index(self.list_view.index)
+
+    def remove_path_item(self, item: PathItem) -> None:
+        """Remove the specified path item."""
+        items = list(self.list_view.query(PathItem))
+        if item in items:
+            idx = items.index(item)
+            self._remove_index(idx)
+
+    def _remove_index(self, idx: int) -> None:
+        self.list_view.remove_items([idx])
+        del self.targets[idx]
+        self._save_current_state()
 
     def action_refresh(self) -> None:
         self.dir_tree.reload()
