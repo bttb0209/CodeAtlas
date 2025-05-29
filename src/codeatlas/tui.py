@@ -42,14 +42,14 @@ class AtlasTUI(App):
     def compose(self) -> ComposeResult:
         yield Header()
         with Horizontal():
-            self.tree = DirectoryTree(self.root)
+            self.dir_tree = DirectoryTree(self.root)
             self.list_view = ListView()
-            yield self.tree
+            yield self.dir_tree
             yield self.list_view
         yield Footer()
 
     def action_add(self) -> None:
-        node = self.tree.cursor_node
+        node = self.dir_tree.cursor_node
         if node and node.data:
             path = node.data.path
             if path not in self.targets:
