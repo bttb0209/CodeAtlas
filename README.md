@@ -49,6 +49,28 @@ options:
 
 ---
 
+## TUI Usage
+
+### When Installed from PyPI
+
+```bash
+codeatlas-tui
+```
+
+### Running Directly from Source
+
+Install the TUI dependencies and launch the module with the `src` layout:
+
+```bash
+git clone https://github.com/bttb0209/codeatlas.git
+cd codeatlas
+python -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+PYTHONPATH=src python -m codeatlas.tui
+```
+
+---
+
 ## Installation
 
 ### End Users
