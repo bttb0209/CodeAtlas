@@ -2,10 +2,43 @@ from __future__ import annotations
 
 from pathlib import Path
 from typing import Iterable
+import os
+import json
+
+CONFIG_ENV = "CODEATLAS_CONFIG_DIR"
+
+
+def _state_file() -> Path:
+    config_dir = Path(os.environ.get(CONFIG_ENV, Path.home() / ".codeatlas"))
+    return config_dir / "state.json"
+
+
+def _load_state() -> dict[str, list[str]]:
+    path = _state_file()
+    if path.exists():
+        try:
+            return json.loads(path.read_text())
+        except Exception:  # pragma: no cover - malformed state
+            return {}
+    return {}
+
+
+def _save_state(data: dict[str, list[str]]) -> None:
+    path = _state_file()
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(data, ensure_ascii=False, indent=2))
+
 
 from textual.app import App, ComposeResult
 from textual.containers import Horizontal
-from textual.widgets import DirectoryTree, Header, Footer, ListView, ListItem, Label
+from textual.widgets import (
+    DirectoryTree,
+    Footer,
+    Header,
+    Label,
+    ListItem,
+    ListView,
+)
 
 from .scanner import scan
 from .formatter.text import to_text
@@ -32,6 +65,7 @@ class AtlasTUI(App):
         ("a", "add", "Add target"),
         ("d", "remove", "Remove target"),
         ("c", "copy", "Copy to clipboard"),
+        ("r", "refresh", "Refresh tree"),
         # Vim-like navigation bindings
         ("j", "move_down", "Cursor down"),
         ("k", "move_up", "Cursor up"),
@@ -42,7 +76,15 @@ class AtlasTUI(App):
     def __init__(self, root: Path | None = None) -> None:
         super().__init__()
         self.root = Path(root or ".").resolve()
-        self.targets: list[Path] = []
+        self._state = _load_state()
+        stored = self._state.get(str(self.root), [])
+        self.targets: list[Path] = [self.root / Path(p) for p in stored]
+
+    def _save_current_state(self) -> None:
+        self._state[str(self.root)] = [
+            p.relative_to(self.root).as_posix() for p in self.targets
+        ]
+        _save_state(self._state)
 
     def _cursor_action(self, name: str) -> None:
         """Dispatch a cursor action to the focused widget."""
@@ -76,6 +118,10 @@ class AtlasTUI(App):
             yield self.list_view
         yield Footer()
 
+    def on_mount(self) -> None:
+        for path in self.targets:
+            self.list_view.append(PathItem(path))
+
     def action_add(self) -> None:
         node = self.dir_tree.cursor_node
         if node and node.data:
@@ -83,12 +129,21 @@ class AtlasTUI(App):
             if path not in self.targets:
                 self.targets.append(path)
                 self.list_view.append(PathItem(path))
+                self._save_current_state()
 
     def action_remove(self) -> None:
         if self.list_view.index is not None:
             idx = self.list_view.index
             self.list_view.remove_items([idx])
             del self.targets[idx]
+            self._save_current_state()
+
+    def action_refresh(self) -> None:
+        self.dir_tree.reload()
+
+    def action_quit(self) -> None:
+        self._save_current_state()
+        self.exit()
 
     def action_copy(self) -> None:
         text = self._build_report()
