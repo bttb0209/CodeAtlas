@@ -125,7 +125,8 @@ class AtlasTUI(App):
     ) -> None:  # pragma: no cover - UI interaction
         """Add the selected path on double click."""
         if event.chain == 2:
-            self.action_add()
+            # Defer action until after the tree updates its selection
+            self.call_later(self.action_add)
             event.stop()
 
     def compose(self) -> ComposeResult:
