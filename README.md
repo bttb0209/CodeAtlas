@@ -98,7 +98,7 @@ pip install -e .
 | **Linting**    | [ruff](https://github.com/astral-sh/ruff)               |
 | **Formatting** | [Black](https://github.com/psf/black)                   |
 | **Docstrings** | NumPy style                                             |
-| **Tests**      | `pytest`                                                |
+| **Tests**      | `unittest`                                              |
 
 ---
 
