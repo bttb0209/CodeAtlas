@@ -32,12 +32,40 @@ class AtlasTUI(App):
         ("a", "add", "Add target"),
         ("d", "remove", "Remove target"),
         ("c", "copy", "Copy to clipboard"),
+        # Vim-like navigation bindings
+        ("j", "move_down", "Cursor down"),
+        ("k", "move_up", "Cursor up"),
+        ("h", "move_left", "Collapse/parent"),
+        ("l", "move_right", "Expand/toggle"),
     ]
 
     def __init__(self, root: Path | None = None) -> None:
         super().__init__()
         self.root = Path(root or ".").resolve()
         self.targets: list[Path] = []
+
+    def _cursor_action(self, name: str) -> None:
+        """Dispatch a cursor action to the focused widget."""
+
+        widget = self.focused
+        if widget is not None:
+            method = getattr(widget, f"action_{name}", None)
+            if method is not None:
+                method()
+
+    def action_move_up(self) -> None:
+        self._cursor_action("cursor_up")
+
+    def action_move_down(self) -> None:
+        self._cursor_action("cursor_down")
+
+    def action_move_left(self) -> None:
+        if self.focused is self.dir_tree:
+            self.dir_tree.action_cursor_parent()
+
+    def action_move_right(self) -> None:
+        if self.focused is self.dir_tree:
+            self.dir_tree.action_toggle_node()
 
     def compose(self) -> ComposeResult:
         yield Header()
