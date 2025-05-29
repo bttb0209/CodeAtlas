@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Iterable
+from typing import Iterable, Any
 import os
 import json
 
@@ -44,8 +44,10 @@ from textual.widgets import (
 from .scanner import scan
 from .formatter.text import to_text
 
+pyperclip: Any | None
 try:
-    import pyperclip
+    import pyperclip as _pyperclip  # type: ignore
+    pyperclip = _pyperclip
 except Exception:  # pragma: no cover - fallback when pyperclip unavailable
     pyperclip = None
 
@@ -170,7 +172,7 @@ class AtlasTUI(App):
     def action_refresh(self) -> None:
         self.dir_tree.reload()
 
-    def action_quit(self) -> None:
+    async def action_quit(self) -> None:
         self._save_current_state()
         self.exit()
 
