@@ -1,3 +1,9 @@
+"""Unit tests for the Textual user interface.
+
+These tests exercise the key bindings and state persistence logic used by the
+``AtlasTUI`` application.
+"""
+
 import json
 import os
 import tempfile

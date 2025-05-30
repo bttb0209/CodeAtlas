@@ -1,3 +1,11 @@
+
+"""Textual user interface for selecting files and directories.
+
+This module provides a small wrapper around :mod:`textual` that lets a user
+pick files or folders from a directory tree.  The selected paths are persisted
+between sessions so that reports can be regenerated easily.
+"""
+
 from __future__ import annotations
 
 from pathlib import Path

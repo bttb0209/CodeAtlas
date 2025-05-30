@@ -1,3 +1,9 @@
+"""Unit tests for the formatter helpers.
+
+These tests verify that the Markdown, JSON and plain text output functions
+return the expected representations for a set of sample entries.
+"""
+
 import json
 import unittest
 from pathlib import Path
