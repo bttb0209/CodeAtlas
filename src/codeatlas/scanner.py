@@ -1,10 +1,10 @@
 """Directory scanning utilities."""
+
 from __future__ import annotations
 
-import os
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Iterable, Iterator, List, Optional
+from typing import Iterable, List
 
 
 @dataclass
@@ -71,6 +71,8 @@ def scan(
                 data = fh.read(num)
             content = data.decode("utf-8", errors="replace")
 
-        entries.append(FileEntry(path=rel, size=stat.st_size, mtime=stat.st_mtime, content=content))
+        entries.append(
+            FileEntry(path=rel, size=stat.st_size, mtime=stat.st_mtime, content=content)
+        )
 
     return entries

@@ -1,4 +1,5 @@
 """Test package configuration."""
+
 from pathlib import Path
 import sys
 

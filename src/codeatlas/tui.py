@@ -5,6 +5,21 @@ from typing import Iterable, Any
 import os
 import json
 
+from textual.app import App, ComposeResult
+from textual.containers import Horizontal
+from textual import events
+from textual.widgets import (
+    DirectoryTree,
+    Footer,
+    Header,
+    Label,
+    ListItem,
+    ListView,
+)
+
+from .scanner import scan
+from .formatter.text import to_text
+
 CONFIG_ENV = "CODEATLAS_CONFIG_DIR"
 
 
@@ -29,24 +44,10 @@ def _save_state(data: dict[str, list[str]]) -> None:
     path.write_text(json.dumps(data, ensure_ascii=False, indent=2))
 
 
-from textual.app import App, ComposeResult
-from textual.containers import Horizontal
-from textual import events
-from textual.widgets import (
-    DirectoryTree,
-    Footer,
-    Header,
-    Label,
-    ListItem,
-    ListView,
-)
-
-from .scanner import scan
-from .formatter.text import to_text
-
 pyperclip: Any | None
 try:
     import pyperclip as _pyperclip  # type: ignore
+
     pyperclip = _pyperclip
 except Exception:  # pragma: no cover - fallback when pyperclip unavailable
     pyperclip = None

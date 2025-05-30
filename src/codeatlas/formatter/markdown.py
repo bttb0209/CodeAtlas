@@ -22,4 +22,3 @@ def to_markdown(entries: Iterable[FileEntry]) -> str:
     """Return ``entries`` serialized as a Markdown document."""
 
     return "\n\n".join(_format_entry(e) for e in entries)
-
