@@ -20,4 +20,3 @@ def to_text(entries: Iterable[FileEntry]) -> str:
     """Return ``entries`` serialized as a plain text document."""
 
     return "\n".join(_format_entry(e) for e in entries)
-

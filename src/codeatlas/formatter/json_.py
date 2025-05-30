@@ -21,4 +21,3 @@ def to_json(entries: Iterable[FileEntry]) -> str:
         for e in entries
     ]
     return json.dumps(data, ensure_ascii=False, indent=2)
-
