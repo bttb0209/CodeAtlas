@@ -1,4 +1,3 @@
-
 """Textual user interface for selecting files and directories.
 
 This module provides a small wrapper around :mod:`textual` that lets a user
@@ -134,9 +133,11 @@ class AtlasTUI(App):
     def on_click(self, event: events.Click) -> None:
         """Handle click events, specifically double-clicks on directory tree."""
         # Check if it's a double-click on the directory tree
-        if (event.chain == 2 and 
-            hasattr(self, 'dir_tree') and 
-            event.sender is self.dir_tree):
+        if (
+            event.chain == 2
+            and hasattr(self, "dir_tree")
+            and event.sender is self.dir_tree
+        ):
             # Defer action until after the tree updates its selection
             self.call_later(self.action_add)
             event.stop()
