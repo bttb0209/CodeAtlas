@@ -11,7 +11,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch, MagicMock
 
-from codeatlas.tui import AtlasTUI
+from codeatlas.tui import AtlasTUI, _shorten_left
 from textual import events
 
 
@@ -83,6 +83,12 @@ class TestTUI(unittest.TestCase):
                 pass
             else:
                 raise
+
+    def test_shorten_left(self) -> None:
+        self.assertEqual(_shorten_left("abcdef", 10), "abcdef")
+        self.assertEqual(_shorten_left("abcdef", 3), "\u2026ef")
+        self.assertEqual(_shorten_left("abcdef", 1), "f")
+
     def test_copy_error_notification(self) -> None:
         app = AtlasTUI()
 

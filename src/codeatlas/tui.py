@@ -71,12 +71,34 @@ except Exception:  # pragma: no cover - fallback when pyperclip unavailable
     pyperclip = None
 
 
+def _shorten_left(text: str, width: int) -> str:
+    """Return ``text`` truncated on the left with an ellipsis if needed."""
+    if width <= 0:
+        return ""
+    if len(text) <= width:
+        return text
+    if width == 1:
+        return text[-1]
+    return "\u2026" + text[-(width - 1) :]
+
+
 class PathItem(ListItem):
     """List item storing a filesystem path."""
 
     def __init__(self, path: Path) -> None:
-        super().__init__(Label(path.as_posix()))
         self.path = path
+        self.label = Label(path.as_posix())
+        super().__init__(self.label)
+
+    def _update_label(self) -> None:
+        width = self.size.width or self.app.size.width // 2
+        self.label.update(_shorten_left(self.path.as_posix(), width))
+
+    def on_mount(self) -> None:  # pragma: no cover - UI interaction
+        self._update_label()
+
+    def on_resize(self, event: events.Resize) -> None:  # pragma: no cover - UI interaction
+        self._update_label()
 
     def on_click(
         self, event: events.Click
