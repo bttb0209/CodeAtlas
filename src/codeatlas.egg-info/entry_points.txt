@@ -1,0 +1,3 @@
+[console_scripts]
+codeatlas = codeatlas.cli:app
+codeatlas-tui = codeatlas.tui:main

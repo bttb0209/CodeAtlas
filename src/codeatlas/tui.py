@@ -130,11 +130,14 @@ class AtlasTUI(App):
         if self.focused is self.dir_tree:
             self.dir_tree.action_toggle_node()
 
-    def on_directory_tree_click(
-        self, event: events.Click
-    ) -> None:  # pragma: no cover - UI interaction
-        """Add the selected path on double click."""
-        if event.chain == 2:
+    def on_click(self, event: events.Click) -> None:
+        """Handle click events, specifically double-clicks on directory tree."""
+        # Check if it's a double-click on the directory tree
+        if (
+            event.chain == 2
+            and hasattr(self, "dir_tree")
+            and event.sender is self.dir_tree
+        ):
             # Defer action until after the tree updates its selection
             self.call_later(self.action_add)
             event.stop()
