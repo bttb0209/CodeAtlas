@@ -51,6 +51,18 @@ class TestTUI(unittest.TestCase):
                 new_state = json.loads(state_file.read_text())
                 self.assertEqual(new_state[str(root.resolve())], ["foo.txt", "bar.txt"])
 
+    def test_copy_error_notification(self) -> None:
+        app = AtlasTUI()
+
+        def raise_error() -> str:
+            raise FileNotFoundError("missing.txt")
+
+        app._build_report = raise_error
+        messages: list[str] = []
+        app.notify = lambda msg, **_: messages.append(msg)
+        app.action_copy()
+        self.assertTrue(any("missing.txt" in m for m in messages))
+
 
 if __name__ == "__main__":  # pragma: no cover - manual execution
     unittest.main()
