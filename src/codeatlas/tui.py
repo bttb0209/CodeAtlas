@@ -188,12 +188,15 @@ class AtlasTUI(App):
         self.exit()
 
     def action_copy(self) -> None:
-        text = self._build_report()
-        if pyperclip is not None:
-            pyperclip.copy(text)
-            self.notify("Copied report to clipboard")
-        else:  # pragma: no cover - clipboard fallback
-            self.notify("pyperclip not available", severity="warning")
+        try:
+            text = self._build_report()
+            if pyperclip is not None:
+                pyperclip.copy(text)
+                self.notify("Copied report to clipboard")
+            else:  # pragma: no cover - clipboard fallback
+                self.notify("pyperclip not available", severity="warning")
+        except Exception as exc:  # pragma: no cover - unexpected errors
+            self.notify(f"Copy failed: {exc}", severity="error")
 
     def _build_report(self) -> str:
         patterns: list[str] = []
