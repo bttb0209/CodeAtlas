@@ -12,9 +12,6 @@ from typing import Iterable, Any
 import os
 import json
 import logging
-
-logger = logging.getLogger(__name__)
-
 from textual.app import App, ComposeResult
 from textual.containers import Horizontal
 from textual import events
@@ -29,6 +26,8 @@ from textual.widgets import (
 
 from .scanner import scan
 from .formatter.text import to_text
+
+logger = logging.getLogger(__name__)
 
 CONFIG_ENV = "CODEATLAS_CONFIG_DIR"
 
@@ -85,19 +84,24 @@ def _shorten_left(text: str, width: int) -> str:
 class PathItem(ListItem):
     """List item storing a filesystem path."""
 
-    def __init__(self, path: Path) -> None:
+    def __init__(self, path: Path, root: Path) -> None:
         self.path = path
-        self.label = Label(path.as_posix())
+        self.root = root
+        rel = path.relative_to(root)
+        self.label = Label(rel.as_posix())
         super().__init__(self.label)
 
     def _update_label(self) -> None:
         width = self.size.width or self.app.size.width // 2
-        self.label.update(_shorten_left(self.path.as_posix(), width))
+        rel = self.path.relative_to(self.root)
+        self.label.update(_shorten_left(rel.as_posix(), width))
 
     def on_mount(self) -> None:  # pragma: no cover - UI interaction
         self._update_label()
 
-    def on_resize(self, event: events.Resize) -> None:  # pragma: no cover - UI interaction
+    def on_resize(
+        self, event: events.Resize
+    ) -> None:  # pragma: no cover - UI interaction
         self._update_label()
 
     def on_click(
@@ -197,7 +201,7 @@ class AtlasTUI(App):
     def on_mount(self) -> None:
         logger.debug("Mounting with %d targets", len(self.targets))
         for path in self.targets:
-            self.list_view.append(PathItem(path))
+            self.list_view.append(PathItem(path, self.root))
 
     def action_add(self) -> None:
         node = self.dir_tree.cursor_node
@@ -208,7 +212,7 @@ class AtlasTUI(App):
             if path not in self.targets:
                 logger.debug("Adding path to targets")
                 self.targets.append(path)
-                self.list_view.append(PathItem(path))
+                self.list_view.append(PathItem(path, self.root))
                 self._save_current_state()
             else:
                 logger.debug("Path already in targets")
